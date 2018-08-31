@@ -42,44 +42,32 @@ app.use(session({
 // 	res.sendFile(path.resolve (__dirname + '/../public/index.html'));
 // });
 
+//GET - Loads the newly generated PDB file for the JSmol applet.
 app.get('/:file', function(req,res){
-	// var storage = firebase.storage();
-	// 	var storageRef = storage.ref();
-	// 	var fileR = storageRef.child('Thr.pdb');
 	var fileName = req.params.file;
-	res.sendFile("files/CBv2.1.25/newMaltose.pdb");
+	res.sendFile(fileName);
 })
 
 //POST - To receive the arguments for CarbBuilder from the input field on the HTML page.
 app.post('/session', function(req,res){	
-	//Stores this browser session's unique ID.]
-	debugger;
+	//Stores this browser session's unique ID.
 	var session = req.session.id;
 
 	//Adds session ID as the output name of the file CarbBuilder will produce.
-	//var args = req.body.args + " -o " + session; 
-	var args = req.body.args + " -o jello"; 
+	var args = req.body.args + " -o " + session;
 
 	//Calls method with these arguments
-	var yes = false;
-	yes = runCarbBuilder(args);
+	runCarbBuilder(args);
 	
 	//Sends the sessionID to the HTML code. This is so JSMol knows which file to load
 	//for that client.
 
-	//res.send(session);
-	res.send(yes);
+	res.send(session);
 });
 
 //Runs CarbBuilder2.exe with the given arguments and outputs a PDB file.
 function runCarbBuilder(args){
 	spawn.sync('files/CBv2.1.25/CarbBuilder2.exe', args.split(" "), { stdio: 'inherit'});
-
-	if (fs.existsSync("/user_code/jello.pdb")) {
-		return true;
-	}else{
-		return false;
-	}
 	//execa('./files/CBv2.1.25/CarbBuilder2.exe', args.split(" "), { stdio: 'inherit' , shell: true});
 	//cmd('./files/CBv2.1.25/CarbBuilder2.exe', args.split(" "), { stdio: 'inherit'});
 }
@@ -88,5 +76,5 @@ function runCarbBuilder(args){
 // app.listen(port);
 // console.log("Server started at: " + port);
 
-//To run on Firebase, I use this code. Only one of these need to be used at a time.
+//To run on Firebase, I use this code. Only one of these need to be used in this file at a time.
 exports.app = functions.https.onRequest(app);
